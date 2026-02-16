@@ -1,0 +1,7 @@
+node_modules/
+.env
+changes.json
+documents.json
+tree.json
+uploads/
+*.pdf

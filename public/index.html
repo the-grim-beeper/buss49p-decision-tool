@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buss 49P Procurement Decision Model</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header id="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="13" rx="2"/>
+          <circle cx="7" cy="19" r="2"/>
+          <circle cx="17" cy="19" r="2"/>
+          <path d="M3 10h18"/>
+          <path d="M7 3v7"/>
+          <path d="M12 3v7"/>
+          <path d="M17 3v7"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Buss 49P Decision Model</h1>
+        <p class="subtitle">FMV Military Bus Procurement Analysis</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn active" data-view="tree" onclick="switchView('tree')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/></svg>
+        Decision Tree
+      </button>
+      <button class="nav-btn" data-view="profiles" onclick="switchView('profiles')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        Company Profiles
+      </button>
+      <button class="nav-btn" data-view="compare" onclick="switchView('compare')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Compare
+      </button>
+      <button class="nav-btn" data-view="scenarios" onclick="switchView('scenarios')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Scenarios
+      </button>
+      <button class="nav-btn" data-view="documents" onclick="switchView('documents')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Documents
+      </button>
+      <button class="nav-btn" data-view="changelog" onclick="switchView('changelog')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+        Change Log
+      </button>
+    </nav>
+  </header>
+
+  <main id="app-main">
+    <div id="view-tree" class="view active">
+      <div class="tree-layout">
+        <div class="tree-panel" id="tree-container"></div>
+        <div class="detail-panel" id="detail-panel">
+          <div class="detail-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <h3>Select a node from the decision tree</h3>
+            <p>Click any node to view detailed analysis, company scores, and influence vectors. Use the AI assistant to explore improvement strategies and challenge assessments.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-profiles" class="view">
+      <div class="profiles-container" id="profiles-container"></div>
+    </div>
+
+    <div id="view-compare" class="view">
+      <div class="compare-container" id="compare-container"></div>
+    </div>
+
+    <div id="view-scenarios" class="view">
+      <div class="scenarios-container" id="scenarios-container"></div>
+    </div>
+
+    <div id="view-documents" class="view">
+      <div class="documents-container" id="documents-container"></div>
+    </div>
+
+    <div id="view-changelog" class="view">
+      <div class="compare-container" id="changelog-container"></div>
+    </div>
+  </main>
+
+  <!-- Edit Score Modal -->
+  <div id="edit-modal-overlay" class="modal-overlay" onclick="closeEditModal()"></div>
+  <div id="edit-modal" class="edit-modal">
+    <div class="edit-modal-header">
+      <h3>Edit Score</h3>
+      <button class="close-btn" onclick="closeEditModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="edit-modal-body">
+      <div class="edit-modal-context">
+        <span id="edit-modal-company" class="edit-modal-company"></span>
+        <span id="edit-modal-node" class="edit-modal-node"></span>
+      </div>
+      <div class="edit-field">
+        <label>Score</label>
+        <div class="edit-score-row">
+          <input type="range" id="edit-score-slider" min="0" max="10" step="0.5" value="5" oninput="updateScorePreview(this.value)">
+          <span id="edit-score-value" class="edit-score-display">5</span>
+          <span class="edit-score-max">/ 10</span>
+        </div>
+      </div>
+      <div id="edit-impact-preview" class="edit-impact-preview"></div>
+      <div class="edit-field">
+        <label>Updated Rationale</label>
+        <textarea id="edit-rationale" rows="3" placeholder="Describe the reasoning behind this score..."></textarea>
+      </div>
+      <div class="edit-field">
+        <label>Motivation for Change <span class="required">*required</span></label>
+        <textarea id="edit-motivation" rows="3" placeholder="Why are you changing this score? What new information or reasoning supports this change?"></textarea>
+      </div>
+      <div class="edit-modal-actions">
+        <button class="score-action-btn" onclick="closeEditModal()">Cancel</button>
+        <button class="score-action-btn primary" id="edit-save-btn" onclick="saveEdit()">Save Change</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Chat Slide-over -->
+  <div id="ai-overlay" class="ai-overlay" onclick="closeAIPanel()"></div>
+  <div id="ai-panel" class="ai-panel">
+    <div class="ai-header">
+      <div>
+        <h3>AI Analysis</h3>
+        <p id="ai-context-label" class="ai-context-label">Claude Opus 4.6</p>
+      </div>
+      <button class="close-btn" onclick="closeAIPanel()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="ai-messages" id="ai-messages"></div>
+    <div class="ai-input-area">
+      <div class="ai-quick-actions" id="ai-quick-actions"></div>
+      <div class="ai-input-row">
+        <textarea id="ai-input" placeholder="Ask about this evaluation node, challenge a score, or explore strategies..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+        <button class="send-btn" onclick="sendMessage()" id="send-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tree Structure Editor Overlay -->
+  <div id="tree-editor-overlay" class="tree-editor-overlay" style="display:none">
+    <div class="tree-editor-container">
+      <div class="tree-editor-header">
+        <h2>Edit Decision Tree</h2>
+        <div class="tree-editor-header-actions">
+          <button onclick="resetTreeToDefault()" class="tree-editor-reset-btn">Reset to Default</button>
+          <button onclick="saveTreeEdits()" class="tree-editor-save-btn">Save Changes</button>
+          <button onclick="closeTreeEditor()" class="tree-editor-close-btn">&times;</button>
+        </div>
+      </div>
+      <div class="tree-editor-body" id="tree-editor-body"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
